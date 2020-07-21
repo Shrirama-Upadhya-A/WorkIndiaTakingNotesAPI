@@ -37,10 +37,18 @@ exports.getUsers = function(req,res) {
 }
 
 exports.authUser = function(req,res) {
-    User.find({name:req.body.username, password: req.body.password}, function(err,uu){
+    User.count({name:req.body.username, password: req.body.password}, function(err,count){
+
         if(err)
             res.send(err);
-        res.json({'status' : "success", "userID" : uu[0]._id});
+        if(count>0){
+            User.find({name:req.body.username, password: req.body.password}, function(err, uu) {
+                res.json({'status': "success", "userID": uu[0]._id});
+            })
+        }
+        else{
+            res.send("Wrong credentials! Please check your username and password")
+        }
     })
 }
 
