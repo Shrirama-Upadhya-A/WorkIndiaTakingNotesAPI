@@ -52,14 +52,14 @@ exports.authUser = function(req,res) {
     })
 }
 
-exports.getNotes = function(req,res) {
-    var userID = req.query.user;
-    User.find({_id: userID}, function(err, user) {
-        if(err)
-            res.send(err);
-        res.json(user[0].notes);
-    })
-}
+// exports.getNotes = function(req,res) {
+//     var userID = req.query.user;
+//     User.findOne({_id: userID}, function(err, user) {
+//         if(err)
+//             res.send(err);
+//         res.json(user[0].notes);
+//     })
+// }
 
 exports.addNote = async function (req, res) {
     var note = req.body.note;
@@ -103,16 +103,17 @@ exports.deleteAllNotes = function (req,res) {
     })
 }
 
-exports.getAllNotes = function (req,res) {
+exports.getAllNotes = async function (req,res) {
     var arr = [];
     User.findOne({_id : req.query.user}, function(err,user){
-        for(var i =0;i<user.notes.length;i++){
-            Note.findOne({_id : user.notes[i]},(err,not)=>{
-                arr.push(decrypt(not.content))
-            })
+        for (const note of user.notes) {
+                Note.find({_id: note},(err,nn)=>{
+                    arr.push(nn.content)
+                })
         }
-    })
-        .then(()=>{
+
+    }).then(()=>{
             res.json(arr);
         })
+
 }

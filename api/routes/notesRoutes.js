@@ -7,7 +7,7 @@ module.exports = function (app) {
     app.route('/app/user/auth')
         .post(usersList.authUser);
     app.route('/app/sites/list/')
-        .get(usersList.getNotes);
+        .get(usersList.getAllNotes);
     app.route('/app/sites')
         .get(usersList.getAllNotes)
         .post(usersList.addNote)
