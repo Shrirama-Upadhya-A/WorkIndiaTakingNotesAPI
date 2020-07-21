@@ -4,28 +4,22 @@ var Note = mongoose.model('Note');
 var User = mongoose.model('User');
 
 const crypto = require('crypto');
-const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32);
-const iv = crypto.randomBytes(16);
 
-function encrypt(text) {
-    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+function encrypt(text){
+    var cipher = crypto.createCipher('aes-256-cbc','d6F3Efeq')
+    var crypted = cipher.update(text,'utf8','hex')
+    crypted += cipher.final('hex');
+    return crypted;
 }
 
-function decrypt(text) {
-    let iv = Buffer.from(text.iv, 'hex');
-    let encryptedText = Buffer.from(text.encryptedData, 'hex');
-    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+function decrypt(text){
+    var decipher = crypto.createDecipher('aes-256-cbc','d6F3Efeq')
+    var dec = decipher.update(text,'hex','utf8')
+    dec += decipher.final('utf8');
+    return dec;
 }
-
 exports.addUser = function(req,res) {
-    var newUser = new User(req.body);
+    var newUser = new User({name: req.body.username, password: req.body.password});
     newUser.save(function(err,User){
         if(err)
             res.send(err);
@@ -104,13 +98,13 @@ exports.deleteAllNotes = function (req,res) {
 exports.getAllNotes = function (req,res) {
     var arr = [];
     User.findOne({_id : req.query.user}, function(err,user){
-        var note;
-        // res.send(user.notes)
-        for(note in user.notes){
-            Note.findOne()
+        for(var i =0;i<user.notes.length;i++){
+            Note.findOne({_id : user.notes[i]},(err,not)=>{
+                arr.push(decrypt(not.content))
+            })
         }
-    }).then(()=>{
-
-        res.json(arr);
     })
+        .then(()=>{
+            res.json(arr);
+        })
 }
